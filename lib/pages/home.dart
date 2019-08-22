@@ -17,6 +17,7 @@ class _HomePageState extends State<HomePage> {
 
   List<SongInfo> _songs = [];
   int _selectedIndex = 1;
+  bool isPageQueue = false;
 
   @override
   void initState() {
@@ -29,14 +30,17 @@ class _HomePageState extends State<HomePage> {
     setState(() {});
   }
 
+  SongInfo _fetchQueuedSong() {
+    return _songs.where((song) {
+      return song.title.contains("Cross Me");
+    }).toList()[0];
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-      _pageController.animateToPage(
-        index,
-        duration: Duration(milliseconds: 1000),
-        curve: Curves.easeInToLinear,
-      );
+      _pageController.jumpToPage(index);
+      index == 0 ? isPageQueue = true : isPageQueue = false;
     });
   }
 
@@ -51,6 +55,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildSearchButton() {
     return IconButton(
+      onPressed: null,
       icon: Icon(
         Icons.search,
         color: Colors.white,
@@ -67,7 +72,7 @@ class _HomePageState extends State<HomePage> {
             physics: NeverScrollableScrollPhysics(),
             controller: _pageController,
             children: <Widget>[
-              QueuePage(),
+              QueuePage(_fetchQueuedSong()),
               SongsPage(_songs),
               ArtistsPage(),
               AlbumsPage(),
@@ -115,7 +120,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(),
+      appBar: !isPageQueue ? _buildAppBar() : null,
       body: _buildBody(),
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
